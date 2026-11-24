@@ -13,7 +13,7 @@ A menu bar / tray front end for [sshuttle](https://github.com/sshuttle/sshuttle)
 ## Install
 
 ```sh
-git clone https://github.com/wmantly/sshuttle-gui.git
+git clone https://github.com/djtruco/sshuttle-gui.git
 cd sshuttle-gui
 npm install
 cp .env.example .env
@@ -82,3 +82,9 @@ Hover for the current public IP and location. Right-click (or click) the icon fo
 - **Prompted for a password / tunnel won't start**: the sudoers entry is missing or stale. Remove `/etc/sudoers.d/sshuttle_gui_auto` and restart the app.
 - **`server died` / Python errors from the remote**: use sshuttle 1.x locally (check `sshuttle --version`) and make sure the remote has `python3`.
 - **Check nothing is left running after quitting**: `pgrep -fl sshuttle`.
+
+## Credits
+
+Originally created by [William Mantly Jr](https://github.com/wmantly/sshuttle-gui). Maintained by Esteban Trujillo.
+
+Released under the [MIT License](LICENSE).

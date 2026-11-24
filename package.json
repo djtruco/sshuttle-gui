@@ -9,17 +9,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wmantly/sshuttle-gui.git"
+    "url": "git+https://github.com/djtruco/sshuttle-gui.git"
   },
   "keywords": [
     "shhuttle"
   ],
   "author": "William Mantly",
+  "contributors": [
+    "Esteban Trujillo"
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/wmantly/sshuttle-gui/issues"
+    "url": "https://github.com/djtruco/sshuttle-gui/issues"
   },
-  "homepage": "https://github.com/wmantly/sshuttle-gui#readme",
+  "homepage": "https://github.com/djtruco/sshuttle-gui#readme",
   "dependencies": {
     "dotenv": "^18.0.10",
     "electron": "^33.0.0",
