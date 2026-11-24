@@ -32,13 +32,18 @@ electron.app.once('ready', function () {
     icon: __dirname + '/static/img/fav.png'
   });
 */
-  tray = new Tray(__dirname + '/static/img/vpn_red.png')
+  // Source PNGs are 128px; the macOS menu bar needs ~18pt tall icons.
+  const icon = name => electron.nativeImage
+    .createFromPath(__dirname + '/static/img/vpn_' + name + '.png')
+    .resize({height: 18});
+
+  tray = new Tray(icon('red'))
   tray.images = {
-    green: __dirname +'/static/img/vpn_green.png',
-    red: __dirname +'/static/img/vpn_red.png',
-    blue: __dirname +'/static/img/vpn_blue.png',
-    yellow: __dirname +'/static/img/vpn_yellow.png',
-    orange: __dirname +'/static/img/vpn_orange.png'
+    green: icon('green'),
+    red: icon('red'),
+    blue: icon('blue'),
+    yellow: icon('yellow'),
+    orange: icon('orange')
   }
 
   let tooltiplock = false;
