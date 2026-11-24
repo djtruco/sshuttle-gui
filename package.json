@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/wmantly/sshuttle-gui#readme",
   "dependencies": {
+    "dotenv": "^18.0.10",
     "electron": "^33.0.0",
     "electron-pubsub": "^0.2.2",
     "request": "^2.88.0"
