@@ -1,3 +1,4 @@
+require('./lib/log'); // timestamp console output
 var electron = require('electron'); // http://electron.atom.io/docs/api
 const {BrowserWindow, Tray, Menu, app} = electron;
 const path = require('path');         // https://nodejs.org/api/path.html
@@ -48,6 +49,8 @@ electron.app.once('ready', function () {
 
   // false when the user chose Disconnect/Quit: suppresses auto-reconnect
   let enabled = true;
+  // true between "Connected to server" and sshuttle exiting/being stopped
+  let connected = false;
 
   const buildMenu = function(){
     tray.setContextMenu(Menu.buildFromTemplate([
@@ -62,6 +65,7 @@ electron.app.once('ready', function () {
 
   const disconnect = function(){
     enabled = false;
+    connected = false;
     sshuttle.stop();
     tray.setImage(tray.images.red);
     tray.setToolTip('Disconnected');
@@ -91,10 +95,13 @@ electron.app.once('ready', function () {
       tooltiplock = false;
       
       if(error || !body ){
+        console.warn('IP lookup failed:', error ? error.message || error : 'empty response');
         tray.setToolTip('IP ERROR!');
-        tray.setImage(tray.images.red);
+        // sshuttle is still up, so warn (yellow) instead of showing it as down (red)
+        tray.setImage(connected ? tray.images.yellow : tray.images.red);
         return ;
       }
+      if(connected) tray.setImage(tray.images.green);
       let tor = body.TorExit === 'false' ? '' : `\nTor node: ${body.TorExit}`
       tray.setToolTip(`IP: ${body.IPAddress}\nISP: ${body.ISP}\nLocation: ${body.Location}, ${body.CountryCode}${tor}`  );
     });
@@ -108,11 +115,13 @@ electron.app.once('ready', function () {
   });
 
   pubsub.subscribe('sshuttle.connected', function(data){
+    connected = true;
     tray.setImage(tray.images.green);
     setTimeout(updateToolTip, 10);
   });
 
   pubsub.subscribe('sshuttle.exit', function(data){
+    connected = false;
     tray.setImage(tray.images.red);
     if(!enabled) return;
     setTimeout(updateToolTip, 10);
