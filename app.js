@@ -1,5 +1,5 @@
 var electron = require('electron'); // http://electron.atom.io/docs/api
-const {BrowserWindow, Tray, Menu} = electron;
+const {BrowserWindow, Tray, Menu, app} = electron;
 const path = require('path');         // https://nodejs.org/api/path.html
 const url = require('url');           // https://nodejs.org/api/url.html
 const pubsub = require('electron-pubsub');
@@ -46,9 +46,45 @@ electron.app.once('ready', function () {
     orange: icon('orange')
   }
 
+  // false when the user chose Disconnect/Quit: suppresses auto-reconnect
+  let enabled = true;
+
+  const buildMenu = function(){
+    tray.setContextMenu(Menu.buildFromTemplate([
+      enabled
+        ? {label: 'Disconnect', click: disconnect}
+        : {label: 'Connect', click: connect},
+      {label: 'Reconnect', enabled: enabled, click: function(){ sshuttle.stop(); }},
+      {type: 'separator'},
+      {label: 'Quit', click: function(){ app.quit(); }}
+    ]));
+  };
+
+  const disconnect = function(){
+    enabled = false;
+    sshuttle.stop();
+    tray.setImage(tray.images.red);
+    tray.setToolTip('Disconnected');
+    buildMenu();
+  };
+
+  const connect = function(){
+    enabled = true;
+    pubsub.publish('sshuttle.reconnect');
+    buildMenu();
+  };
+
+  // Covers Quit, Cmd+Q and system shutdown: stop sshuttle, don't reconnect.
+  app.on('before-quit', function(){
+    enabled = false;
+    sshuttle.stop();
+  });
+
+  buildMenu();
+
   let tooltiplock = false;
   const updateToolTip = function(color, message){
-    if(tooltiplock) return ;
+    if(tooltiplock || !enabled) return ;
     tooltiplock = true;
     
     ip.get(function(error, body){
@@ -78,11 +114,13 @@ electron.app.once('ready', function () {
 
   pubsub.subscribe('sshuttle.exit', function(data){
     tray.setImage(tray.images.red);
+    if(!enabled) return;
     setTimeout(updateToolTip, 10);
     setTimeout(pubsub.publish, 20, 'sshuttle.reconnect');
   });
 
   pubsub.subscribe('sshuttle.reconnect', function(data){
+    if(!enabled) return;
     tray.setImage(tray.images.orange);
     tray.setToolTip('Connecting!')
     setTimeout(sshuttle.start, 100);
